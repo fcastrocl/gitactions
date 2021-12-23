@@ -28,3 +28,26 @@ jobs:
     # Runs a single command using the runners shell
     - name: Send greeting
       run: echo "Hello ${{ github.event.inputs.name }}"
+
+    - name: Checkout source php code
+      uses: actions/checkout@v2
+      with:
+        ref: s2021-s26
+    - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+    - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+
+    ## Need to check how to do 
+    - name: Generate deployment package
+      run: zip -r deploy.zip . -x '*.git*'
+    
+    ## Deploy to aws EB 
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v20
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: app-university
+        environment_name: app-university-env
+        version_label: 1
+        region: us-east-1
+        deployment_package: deploy.zip
